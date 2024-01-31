@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Transformación de Imágenes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="card">
+        <h1>Transformación de Imágenes</h1>
+        
+        <!-- Botón para cargar una imagen -->
+        <input class="inputCargaImg" type="file" id="fileInput" accept="image/*">
+        
+        <!-- Visualización de la imagen cargada -->
+        <div class="seccionImgCargada">
+            <img id="image" style="max-width: 100%; height: auto;">
+        </div>
+
+        <!-- Controles deslizantes para las transformaciones -->
+        <div class="seccionMedidas">
+            <h2>Transformaciones</h2>
+            <label for="rotationSlider">Rotación:</label>
+            <input type="range" id="rotationSlider" min="-180" max="180" value="0" step="1"><br>
+
+            <label for="scaleSlider">Escalado:</label>
+            <input type="range" id="scaleSlider" min="0.1" max="3" value="1" step="0.1"><br>
+
+            <label for="shearXSlider">Cizallamiento X:</label>
+            <input type="range" id="shearXSlider" min="-1" max="1" value="0" step="0.1"><br>
+
+            <label for="shearYSlider">Cizallamiento Y:</label>
+            <input type="range" id="shearYSlider" min="-1" max="1" value="0" step="0.1"><br>
+
+            <label for="translateXSlider">Translación X:</label>
+            <input type="range" id="translateXSlider" min="-100" max="100" value="0" step="1"><br>
+
+            <label for="translateYSlider">Translación Y:</label>
+            <input type="range" id="translateYSlider" min="-100" max="100" value="0" step="1"><br>
+        </div>
+
+        <!-- Botón para aplicar transformaciones y guardar la imagen -->
+        <button id="applyTransformations">Aplicar</button>
+
+        <!-- Botón para guardar la imagen -->
+        <button id="saveTransformedImage">Guardar</button>
+    </div>
+    <!-- Script para manejar la carga de imágenes y transformaciones -->
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const image = document.getElementById('image');
+        const rotationSlider = document.getElementById('rotationSlider');
+        const scaleSlider = document.getElementById('scaleSlider');
+        const shearXSlider = document.getElementById('shearXSlider');
+        const shearYSlider = document.getElementById('shearYSlider');
+        const translateXSlider = document.getElementById('translateXSlider');
+        const translateYSlider = document.getElementById('translateYSlider');
+        const applyTransformationsButton = document.getElementById('applyTransformations');
+
+        let loadedImage = null;
+
+        // Función para cargar una imagen
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    image.src = e.target.result;
+                    loadedImage = new Image();
+                    loadedImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Función para aplicar transformaciones y mostrar la imagen transformada
+        applyTransformationsButton.addEventListener('click', () => {
+            if (loadedImage) {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = loadedImage.width;
+                canvas.height = loadedImage.height;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Aplicar transformaciones
+                const angle = parseFloat(rotationSlider.value);
+                const scale = parseFloat(scaleSlider.value);
+                const shearX = parseFloat(shearXSlider.value);
+                const shearY = parseFloat(shearYSlider.value);
+                const translateX = parseFloat(translateXSlider.value);
+                const translateY = parseFloat(translateYSlider.value);
+
+                ctx.save();
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.rotate(angle * (Math.PI / 180));
+                ctx.scale(scale, scale);
+                ctx.transform(1, shearX, shearY, 1, 0, 0);
+                ctx.translate(translateX, translateY);
+                ctx.drawImage(loadedImage, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+                ctx.restore();
+
+                // Mostrar la imagen transformada
+                image.src = canvas.toDataURL();
+            }
+        });
+
+        const saveTransformedImageButton = document.getElementById('saveTransformedImage');
+
+        // Función para guardar la imagen transformada
+        saveTransformedImageButton.addEventListener('click', () => {
+            if (loadedImage) {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = loadedImage.width;
+                canvas.height = loadedImage.height;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+                // Aplicar transformaciones
+                const angle = parseFloat(rotationSlider.value);
+                const scale = parseFloat(scaleSlider.value);
+                const shearX = parseFloat(shearXSlider.value);
+                const shearY = parseFloat(shearYSlider.value);
+                const translateX = parseFloat(translateXSlider.value);
+                const translateY = parseFloat(translateYSlider.value);
+            
+                ctx.save();
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.rotate(angle * (Math.PI / 180));
+                ctx.scale(scale, scale);
+                ctx.transform(1, shearX, shearY, 1, 0, 0);
+                ctx.translate(translateX, translateY);
+                ctx.drawImage(loadedImage, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+                ctx.restore();
+            
+                // Crear un enlace de descarga para la imagen transformada
+                const downloadLink = document.createElement('a');
+                downloadLink.href = canvas.toDataURL();
+                downloadLink.download = 'imagen_transformada.png';
+                downloadLink.click();
+            }
+        });
+    </script>
+</body>
+</html>
